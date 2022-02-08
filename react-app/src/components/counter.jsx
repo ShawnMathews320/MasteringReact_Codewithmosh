@@ -4,11 +4,11 @@ class Counter extends Component {
 
     // state includes any data that the component needs
     state = {
-        count: 0
+        value: this.props.value
     }
 
     handleIncrement = product => {
-       this.setState({ count: this.state.count + 1 });
+       this.setState({ value: this.state.value + 1 });
     }
 
     // renders our component into the UI
