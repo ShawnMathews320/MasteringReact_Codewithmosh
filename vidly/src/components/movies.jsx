@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
 import { getMovies } from '../services/fakeMovieService';
+import Like from './common/like';
+import Pagination from './common/pagination';
+import { paginate } from '../utils/paginate';
 
 class Movies extends Component {
     state = {
-        movies: getMovies()
+        movies: getMovies(),
+        pageSize: 4,
+        currentPage: 1
     };
 
     handleDelete = movie => {
@@ -13,12 +18,28 @@ class Movies extends Component {
         // setState with new object
         this.setState({ movies });
     };
+
+    handleLike = movie => {
+        const movies = [...this.state.movies];  // clone array of objects
+        const index = movies.indexOf(movie);  // find index of the object
+        movies[index] = { ...movies[index] };  // set the index of movies to a new object
+        movies[index].liked = !movies[index].liked;  // toggle liked property of the index of movies
+        this.setState({ movies });
+    }
+
+    handlePageChange = page => {
+        this.setState({ currentPage: page });  // change the page in our state to the current page
+    }
     
     render() {
+        // object destructuring
         const { length: count } = this.state.movies;
+        const { pageSize, currentPage, movies: allMovies } = this.state;
 
-        if (count === 0)
-            return <p>There are no movies in the database.</p>;
+        if (count === 0) return <p>There are no movies in the database.</p>;
+
+        // paginate the data, get a new array and store it in this constant
+        const movies = paginate(allMovies, currentPage, pageSize);
 
         return(
             <React.Fragment>
@@ -34,12 +55,18 @@ class Movies extends Component {
                         </tr>
                     </thead>
                     <tbody>
-                        { this.state.movies.map(movie => (
-                        <tr key={movie._id}>
+                        { movies.map(movie => (  // render movies local in this method
+                        <tr key={ movie._id }>
                             <td>{ movie.title }</td>
                             <td>{ movie.genre.name }</td> 
                             <td>{ movie.numberInStock }</td>
                             <td>{ movie.dailyRentalRate }</td>
+                            <td>
+                                <Like 
+                                    onToggleClick={() => this.handleLike(movie) }  // when we click the like button
+                                    liked={ movie.liked }  // whether or not the button is currently clicked
+                                />
+                            </td>
                             <td>
                                 <button onClick={() => this.handleDelete(movie)} 
                                     className="btn btn-danger btn-sm">
@@ -50,6 +77,12 @@ class Movies extends Component {
                         )) }                        
                     </tbody>
                 </table>
+                <Pagination
+                    itemsCount={ count }  // total number of movies
+                    pageSize={ pageSize }  // total number of pages
+                    onPageChange={ this.handlePageChange }  // when the page changes
+                    currentPage={ currentPage }  // the current page the user is on
+                />
             </React.Fragment>
         );
     }
