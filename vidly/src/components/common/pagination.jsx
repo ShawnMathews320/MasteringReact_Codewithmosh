@@ -36,10 +36,10 @@ const Pagination = props => {
 
 // define the type check requirements for this component
 Pagination.propTypes = {  // object with props of our component with their types and whether or not they are required
-    itemsCount: PropTypes.number.isRequired,  // itemsCount is required to be a number
+    itemsCount: PropTypes.number.isRequired,  // itemsCount is required to be an array
     pageSize: PropTypes.number.isRequired, 
-    onPageChange: PropTypes.number.isRequired, 
-    currentPage: PropTypes.func.isRequired  // currentPage is required to be a function
+    onPageChange: PropTypes.func.isRequired,  // onPageChange is required to be a function
+    currentPage: PropTypes.number.isRequired  
 };
  
 export default Pagination;
