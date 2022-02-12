@@ -1,19 +1,25 @@
+// the Link component gives us single page applications, where the entire page won't be reloaded when a user navigates from
+// one page to another. Only the content area will be updated,
+// inside Link components there is still an anchor (<a> tag), but this anchor has a handler for the onClick event. When we click
+// these links the handler is called and this function prevents the default behavior of an anchor. The anchor will only update
+// the url specified in the Link component
+import { Link } from "react-router-dom";  
 import React from "react";
 
 const NavBar = () => {
   return (
     <ul>
       <li>
-        <a href="/">Home</a>
+        <Link to="/">Home</Link>
       </li>
       <li>
-        <a href="/products">Products</a>
+        <Link to="/products">Products</Link>
       </li>
       <li>
-        <a href="/posts/2018/06">Posts</a>
+        <Link to="/posts/2018/06">Posts</Link>
       </li>
       <li>
-        <a href="/admin">Admin</a>
+        <Link to="/admin">Admin</Link>
       </li>
     </ul>
   );
