@@ -1,6 +1,6 @@
 import Like from './common/like';
-import TableHeader from './common/tableHeader';
 import React, { Component } from 'react';
+import Table from './common/table';
 
 class MoviesTable extends Component {
     columns = [  // doesn't have to be part of the state bc it's not going to change throughout the lifecycle of the component
@@ -8,43 +8,36 @@ class MoviesTable extends Component {
         { path: 'genre.name', label: 'Genre'},
         { path: 'numberInStock', label: 'Stock'},
         { path: 'dailyRentalRate', label: 'Rate'},
-        { key: 'like' },
-        { key: 'delete' }
+        { 
+            key: 'like',  // when we click the like button and whether or not the button is currently clicked
+            content: movie =>  // setting content to a function that takes a movie object and returns a React element
+                <Like 
+                    onToggleClick={() => this.props.onLike(movie) } 
+                    liked={ movie.liked } 
+                /> 
+        },
+        { 
+            key: 'delete', 
+            content: movie =>  // setting content to a function that takes a movie object and returns a React element
+                <button 
+                    onClick={() => this.props.onDelete(movie)} 
+                    className="btn btn-danger btn-sm">
+                    Delete
+                </button> 
+        }
     ];
 
     render() { 
-        const { movies, onDelete, onLike, onSort, sortColumn } = this.props;  // our props
+        const { movies, onSort, sortColumn } = this.props;  // our props
 
         return (
-            <table className='table'>
-                <TableHeader 
-                    columns={ this.columns }
-                    sortColumn={ sortColumn }
-                    onSort={ onSort }
-                />
-                    <tbody>
-                        { movies.map(movie => (  // render movies local in this method
-                            <tr key={ movie._id }>
-                                <td>{ movie.title }</td>
-                                <td>{ movie.genre.name }</td> 
-                                <td>{ movie.numberInStock }</td>
-                                <td>{ movie.dailyRentalRate }</td>
-                                <td>
-                                <Like 
-                                    onToggleClick={() => onLike(movie) }  // when we click the like button
-                                    liked={ movie.liked }  // whether or not the button is currently clicked
-                                />
-                                </td>
-                                <td>
-                                    <button onClick={() => onDelete(movie)} 
-                                    className="btn btn-danger btn-sm">
-                                    Delete
-                                    </button>
-                                </td>
-                            </tr>
-                            )) }                        
-                    </tbody>
-            </table>
+            // this component is a wrapper around this table and has all of the data that the table needs
+            <Table
+                columns={ this.columns }
+                data={ movies }
+                sortColumn={ sortColumn }
+                onSort={ onSort }
+            />
         );   
     }
 }

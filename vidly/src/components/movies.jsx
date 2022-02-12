@@ -58,19 +58,15 @@ class Movies extends Component {
         this.setState({ sortColumn });  // set new state
     };
     
-    render() {
-        // object destructuring
-        const { length: count } = this.state.movies;
+    getPagedData = () => {
+        // pass object destructuring
         const { 
             pageSize, 
             currentPage, 
             movies: allMovies, 
             selectedGenre, 
-            genres,
             sortColumn 
         } = this.state;
-
-        if (count === 0) return <p>There are no movies in the database.</p>;
 
         // filter, sort, then paginate the data
 
@@ -87,6 +83,19 @@ class Movies extends Component {
         // paginate the data, get a new array and store it in this constant
         const movies = paginate(sorted, currentPage, pageSize);
 
+        return { totalCount: filteredMovies.length, data: movies };
+    }
+
+    render() {
+        // object destructuring
+        const { length: count } = this.state.movies;
+        const { pageSize, currentPage, genres, sortColumn, selectedGenre } = this.state;
+
+        if (count === 0) return <p>There are no movies in the database.</p>;    
+        
+        // all the logic for filtering, sorting, and pagination is encapsulated in this method
+        const { totalCount, data: movies } = this.getPagedData();
+
         return(
             // grid layout
             <div className='row'>
@@ -102,10 +111,10 @@ class Movies extends Component {
 
                 {/* movies listed in table with pagination below them */}
                 <div className="col">
-                    <p>Showing { filteredMovies.length } movies in the database.</p>
+                    <p>Showing { totalCount } movies in the database.</p>
 
                     {/* our table of movies */}
-                    <MoviesTable
+                    <MoviesTable  // events that our movies table raises
                         movies={ movies }
                         sortColumn={ sortColumn }  // as the user navigates away from the list of movies then comes back
                         // we want to initialize this page with the last sort order
@@ -115,7 +124,7 @@ class Movies extends Component {
                     />
 
                     <Pagination
-                        itemsCount={ filteredMovies.length }  // total number of movies
+                        itemsCount={ totalCount }  // total number of movies
                         pageSize={ pageSize }  // total number of pages
                         onPageChange={ this.handlePageChange }  // when the page changes
                         currentPage={ currentPage }  // the current page the user is on

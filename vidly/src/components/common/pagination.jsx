@@ -1,9 +1,7 @@
 import _ from 'lodash';  // lodash is the optimized version of a popular js library called underscore
 import PropTypes from 'prop-types';
 
-const Pagination = props => {
-    const { itemsCount, pageSize, onPageChange, currentPage } = props;
-
+const Pagination = ({ itemsCount, pageSize, onPageChange, currentPage }) => {
     // get an integer with Math.ceil
     const pagesCount = Math.ceil(itemsCount / pageSize);  // see how many movies we should fit per page
 
