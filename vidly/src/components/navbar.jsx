@@ -1,4 +1,3 @@
-import React, { Component } from 'react';
 import { NavLink, Link } from 'react-router-dom';  // can be used to apply the active class to a link
 
 const NavBar = () => {
@@ -15,6 +14,7 @@ const NavBar = () => {
                         <NavLink className="nav-link" to="/customers">Customers</NavLink>
                         <NavLink className="nav-link" to="/rentals">Rentals</NavLink>
                         <NavLink className="nav-link" to="/login">Login</NavLink>
+                        <NavLink className="nav-link" to="/register">Register</NavLink>
                     </div>
                 </div>
             </div>

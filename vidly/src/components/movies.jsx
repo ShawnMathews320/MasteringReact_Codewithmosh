@@ -6,6 +6,8 @@ import { paginate } from '../utils/paginate';
 import { getGenres } from '../services/fakeGenreService';
 import MoviesTable from './moviesTable';
 import _ from 'lodash';
+import { Link } from 'react-router-dom';
+import SearchBox from './common/searchBox';
 
 class Movies extends Component {
     state = {
@@ -14,8 +16,10 @@ class Movies extends Component {
         // otherwise we will get a runtime error
         movies: [],  
         genres: [],  
-        pageSize: 4,
         currentPage: 1,
+        pageSize: 4,
+        searchQuery: '',
+        selectedGenre: null,
         sortColumn: { path: 'title', order: 'asc'}
         
     };
@@ -51,7 +55,16 @@ class Movies extends Component {
 
     handleGenreSelect = genre => {
         // set state of the genre we clicked on
-        this.setState({ selectedGenre: genre, currentPage: 1 });  // also reset current page to 1 
+        // controlled components cannot be null or undefined, hence why searchQuery is ''
+        this.setState({ selectedGenre: genre, searchQuery: '', currentPage: 1 });  // also reset current page to 1 
+    }
+
+    // we pass what the user types in the input field (query)
+    handleSearch = query => {
+        // set selectedGenre to null so the user can view their results if any genre is previously selected
+        // set currentPage to 1 bc the user might be on a different page and if the results have less pages than the user is
+        // on then nothing will display on the screen
+        this.setState({ searchQuery: query, selectedGenre: null, currentPage: 1 });
     }
 
     handleSort = sortColumn => {
@@ -63,25 +76,30 @@ class Movies extends Component {
         const { 
             pageSize, 
             currentPage, 
-            movies: allMovies, 
+            sortColumn,
             selectedGenre, 
-            sortColumn 
+            searchQuery,
+            movies: allMovies 
         } = this.state;
 
         // filter, sort, then paginate the data
 
-        // if selectedGenre and id of selectedGenre are both truthy we get allMovies and filter them such that the genre of 
-        // each movie is equal to the  selected genre. Otherwise if there is no selectedGenre we are going to set this filtered 
-        // list of movies to the list of allMovies
-        const filteredMovies = selectedGenre && selectedGenre._id
-            ? allMovies.filter(m => m.genre._id === selectedGenre._id) 
-            : allMovies;
+        // if we have a searchQuery we call allMovies.filter where m goes to the title of the movie in lowercase and check
+        // to see if it starts with our searchQuery in lowercase. otherwise if we have genre we filter the movies by the
+        // selectedGenre
+        let filteredMovies = allMovies;
+        if (searchQuery)  
+            filteredMovies = allMovies.filter(m =>
+                m.title.toLowerCase().startsWith(searchQuery.toLowerCase())    
+            );
+        else if (selectedGenre && selectedGenre._id)
+            filteredMovies = allMovies.filter(m => m.genre._id === selectedGenre._id);
 
         // returns a new sorted array
         const sorted = _.orderBy(filteredMovies, [sortColumn.path], [sortColumn.order]);
         
         // paginate the data, get a new array and store it in this constant
-        const movies = paginate(sorted, currentPage, pageSize);
+        const movies = paginate(sorted, currentPage, pageSize); 
 
         return { totalCount: filteredMovies.length, data: movies };
     }
@@ -89,7 +107,7 @@ class Movies extends Component {
     render() {
         // object destructuring
         const { length: count } = this.state.movies;
-        const { pageSize, currentPage, genres, sortColumn, selectedGenre } = this.state;
+        const { pageSize, currentPage, genres, sortColumn, selectedGenre, searchQuery } = this.state;
 
         if (count === 0) return <p>There are no movies in the database.</p>;    
         
@@ -111,7 +129,24 @@ class Movies extends Component {
 
                 {/* movies listed in table with pagination below them */}
                 <div className="col">
+                    {/* button that links to newMovieForm page */}
+                    <Link
+                        to='/movies/new'
+                        className='btn btn-primary'
+                        style={{ marginBottom: 20}}
+                    >
+                        New Movie
+                    </Link>
+
                     <p>Showing { totalCount } movies in the database.</p>
+
+                    {/* controlled component (gets all data from props and raises events to change data) it is directly
+                    controlled by its parent. We encapsulate this input field in a component so we have a simpler interface
+                    to work with */}
+                    <SearchBox
+                        value={ searchQuery }
+                        onChange={ this.handleSearch }
+                    />
 
                     {/* our table of movies */}
                     <MoviesTable  // events that our movies table raises
