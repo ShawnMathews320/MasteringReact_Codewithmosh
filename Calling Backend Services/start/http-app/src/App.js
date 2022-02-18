@@ -1,17 +1,45 @@
 import React, { Component } from "react";
+import axios from 'axios';
 import "./App.css";
+
+const apiEndpoint = 'https://jsonplaceholder.typicode.com/posts';  // where our endpoint is
 
 class App extends Component {
   state = {
     posts: []
   };
 
-  handleAdd = () => {
-    console.log("Add");
+  // this is where the server should be called
+  async componentDidMount() {
+    // await the result of the call to axios.get and get the actual response object
+    const { data: posts } = await axios.get(apiEndpoint);  // send https request and get data
+    this.setState({ posts });  // update our posts
+  }
+
+  handleAdd = async () => {
+    const obj = { title: 'a', body: 'b' };
+    const { data: post } = await axios.post(apiEndpoint, obj);  // creating data and sending the object to the server
+
+    const posts = [post, ...this.state.posts];  // create array to add to our table
+    this.setState({ posts });  // update posts
   };
 
-  handleUpdate = post => {
-    console.log("Update", post);
+  handleUpdate = async post => {
+    post.title = 'UPDATED';
+
+    // using template literals (``) to append to path
+    // when using the put method we should send the entire post object
+    await axios.put(`${ apiEndpoint }/${ post.id }`, post);  // updates all properties in this specific path
+
+    const posts = [...this.state.posts]  // clone our posts array
+
+    // find index of this post in this array
+    const index = posts.indexOf(post);
+
+    // go to that index and create a new object and spread the post argument
+    posts[index] = { ...post };
+
+    this.setState({ posts });  // update posts
   };
 
   handleDelete = post => {
