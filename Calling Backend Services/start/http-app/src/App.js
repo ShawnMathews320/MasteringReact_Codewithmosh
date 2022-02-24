@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import axios from 'axios';
+import { ToastContainer } from "react-toastify";
+import httpService from "./services/httpService";
+import config from './config.json';
+import 'react-toastify/dist/ReactToastify.css';
 import "./App.css";
-
-const apiEndpoint = 'https://jsonplaceholder.typicode.com/posts';  // where our endpoint is
 
 class App extends Component {
   state = {
@@ -12,13 +13,13 @@ class App extends Component {
   // this is where the server should be called
   async componentDidMount() {
     // await the result of the call to axios.get and get the actual response object
-    const { data: posts } = await axios.get(apiEndpoint);  // send https request and get data
+    const { data: posts } = await httpService.get(config.apiEndpoint);  // send https request and get data
     this.setState({ posts });  // update our posts
   }
 
   handleAdd = async () => {
     const obj = { title: 'a', body: 'b' };
-    const { data: post } = await axios.post(apiEndpoint, obj);  // creating data and sending the object to the server
+    const { data: post } = await httpService.post(config.apiEndpoint, obj);  // creating data and sending the object to the server
 
     const posts = [post, ...this.state.posts];  // create array to add to our table
     this.setState({ posts });  // update posts
@@ -29,7 +30,7 @@ class App extends Component {
 
     // using template literals (``) to append to path
     // when using the put method we should send the entire post object
-    await axios.put(`${ apiEndpoint }/${ post.id }`, post);  // updates all properties in this specific path
+    await httpService.put(`${ config.apiEndpoint }/${ post.id }`, post);  // updates all properties in this specific path
 
     const posts = [...this.state.posts]  // clone our posts array
 
@@ -42,13 +43,32 @@ class App extends Component {
     this.setState({ posts });  // update posts
   };
 
-  handleDelete = post => {
-    console.log("Delete", post);
+  handleDelete = async post => {
+    const originalPosts = this.state.posts;  // reference to our previous state in case the call to the server fails
+
+    // compare id of the post with the id we are deleting
+    const posts = this.state.posts.filter(p => p.id !== post.id);  // we want all posts except post we are are deleting
+    this.setState({ posts });  // update posts which now has one less post
+
+    try {  // attempt to call the server
+      await httpService.delete(`${ config.apiEndpoint }/${ post.id }`);  // delete object from this resource
+    }
+    catch (ex) {  // when we get an exception/error
+      
+      // Expected errors (404: not found, 400: bad request) these are client errors
+      if (ex.response && ex.response.status === 404)  // if the response and the status equalling 404 are truthy
+        alert('This post has already been deleted.');
+
+      this.setState({ posts: originalPosts });  // revert changes cause the call to server failed
+    }
   };
 
   render() {
     return (
       <React.Fragment>
+        <ToastContainer
+
+        />
         <button className="btn btn-primary" onClick={this.handleAdd}>
           Add
         </button>
