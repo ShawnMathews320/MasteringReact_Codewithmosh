@@ -1,4 +1,5 @@
 import axios from 'axios';
+import logger from './logService';
 import { toast } from 'react-toastify';
 
 // first function called if response is null, the second function if an error occurs
@@ -10,7 +11,7 @@ axios.interceptors.response.use(null, error => {
   
     // if we have an unexpected error
     if (!expectedError) {
-      console.log('Logging the error', error);
+      logger.log(error);
       toast.error('An unexpected error occurred.');
     }
   

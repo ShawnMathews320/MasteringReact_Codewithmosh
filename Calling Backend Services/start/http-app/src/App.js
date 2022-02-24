@@ -51,7 +51,7 @@ class App extends Component {
     this.setState({ posts });  // update posts which now has one less post
 
     try {  // attempt to call the server
-      await httpService.delete(`${ config.apiEndpoint }/${ post.id }`);  // delete object from this resource
+      await httpService.delete(`s${ config.apiEndpoint }/${ post.id }`);  // delete object from this resource
     }
     catch (ex) {  // when we get an exception/error
       
