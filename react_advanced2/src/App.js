@@ -1,25 +1,42 @@
-import logo from './logo.svg';
 import './App.css';
+import Movie from './higherOrderComponents/movie';
+import Counter from './hooks/Counter';
+import Users from './hooks/Users';
+import MoviePage from './context/MoviePage';
+import React, { Component } from 'react';
+import UserContext from './context/userContext';
+import CartContext from './context/cartContext';
+import Login from './context/Login';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+	// this is the value that the user enters in the login form
+	handleLoggedIn = (username) => {
+		console.log(`Getting the user: ${username}`);
+		const user = { name: 'Shawn' };
+		this.setState({ currentUser: user });
+	};
+
+	state = { currentUser: null };
+
+	render() {
+		return (
+			<CartContext.Provider value={{ cart: [] }}>
+				<UserContext.Provider
+					value={{
+						currentUser: this.state.currentUser,
+						onLoggedIn: this.handleLoggedIn,
+					}}>
+					<div>
+						<Movie id={1} />
+						<Counter />
+						<Users />
+						<MoviePage />
+						<Login />
+					</div>
+				</UserContext.Provider>
+			</CartContext.Provider>
+		);
+	}
 }
 
 export default App;
